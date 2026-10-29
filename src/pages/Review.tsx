@@ -110,7 +110,7 @@ export function ReviewPage() {
               <li key={i} className="bg-surface px-2 py-3 text-center">
                 <span className="block text-[11.5px] text-ink-3 tnum">{BOX_DAYS[i + 1]} d</span>
                 <span className="block text-[24px] font-[700] text-ink tnum">{n}</span>
-                <span className="mt-1 block h-1.5" style={{ background: i < 2 ? 'var(--d-dbt)' : i < 4 ? 'var(--d-semantic)' : 'var(--d-quality)' }} aria-hidden />
+                <span className="mt-1 block h-1.5" style={{ background: i < 2 ? 'var(--bad)' : i < 4 ? 'var(--warn)' : 'var(--ok)' }} aria-hidden />
               </li>
             ))}
           </ol>
