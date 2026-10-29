@@ -288,7 +288,7 @@ export function DbtWorkspace({ files, onChange, targetSchema, baseline, initialF
             {activeModel && (
               <div className="flex shrink-0 items-center gap-1">
                 <Button size="sm" variant="ghost" onClick={doPreview} title="Compile and preview this model (Ctrl/Cmd+Enter)">
-                  Preview <Kbd>⌘↵</Kbd>
+                  Preview <Kbd>Ctrl ↵</Kbd>
                 </Button>
                 <Button size="sm" variant="ghost" onClick={doCompile}>
                   Compile
