@@ -3,7 +3,7 @@
   "private": true,
   "version": "1.0.0",
   "type": "module",
-  "description": "AE Licence \u2014 practise, learn and test your analytics engineering skills in the browser (SQL + a mini dbt on DuckDB-WASM).",
+  "description": "AE Licence — practise, learn and test your analytics engineering skills in the browser (SQL + a mini dbt on DuckDB-WASM).",
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
@@ -25,6 +25,7 @@
     "@fontsource/federo": "^5.3.0",
     "@lezer/highlight": "^1.2.5",
     "@uiw/react-codemirror": "^4.25.12",
+    "fflate": "^0.8.3",
     "js-yaml": "^5.5.0",
     "lucide-react": "^1.64.0",
     "nunjucks": "^3.2.4",
