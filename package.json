@@ -3,13 +3,14 @@
   "private": true,
   "version": "1.0.0",
   "type": "module",
-  "description": "AE Licence — practise, learn and test your analytics engineering skills in the browser (SQL + a mini dbt on DuckDB-WASM).",
+  "description": "AE Licence \u2014 practise, learn and test your analytics engineering skills in the browser (SQL + a mini dbt on DuckDB-WASM).",
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
     "preview": "vite preview",
     "typecheck": "tsc -b",
-    "verify-content": "node scripts/verify-content.mjs"
+    "verify-content": "node scripts/verify-content.mjs",
+    "build:docs": "tsc -b && vite build --outDir docs --emptyOutDir && touch docs/.nojekyll"
   },
   "dependencies": {
     "@codemirror/lang-python": "^6.2.1",

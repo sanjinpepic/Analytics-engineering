@@ -8,8 +8,6 @@
  *   ex_<id> — throwaway schemas for graded exercises
  */
 import * as duckdb from '@duckdb/duckdb-wasm';
-import mvpWasm from '@duckdb/duckdb-wasm/dist/duckdb-mvp.wasm?url';
-import mvpWorker from '@duckdb/duckdb-wasm/dist/duckdb-browser-mvp.worker.js?url';
 import ehWasm from '@duckdb/duckdb-wasm/dist/duckdb-eh.wasm?url';
 import ehWorker from '@duckdb/duckdb-wasm/dist/duckdb-browser-eh.worker.js?url';
 import { generateDataset, toCsv } from './dataset';
@@ -29,8 +27,10 @@ let connPromise: Promise<duckdb.AsyncDuckDBConnection> | null = null;
 let queue: Promise<unknown> = Promise.resolve();
 
 async function createDb(): Promise<duckdb.AsyncDuckDB> {
+  // Only the exception-handling build ships (every current browser supports Wasm EH);
+  // it halves the size of the static site committed to docs/.
   const bundle = await duckdb.selectBundle({
-    mvp: { mainModule: mvpWasm, mainWorker: mvpWorker },
+    mvp: { mainModule: ehWasm, mainWorker: ehWorker },
     eh: { mainModule: ehWasm, mainWorker: ehWorker },
   });
   const worker = new Worker(bundle.mainWorker!);

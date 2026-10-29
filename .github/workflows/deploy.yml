@@ -1,9 +1,8 @@
 name: Deploy to GitHub Pages
 
+# The site is served from docs/ on main ("Deploy from a branch").
+# This workflow is the alternative (Settings → Pages → Source: GitHub Actions); run it manually.
 on:
-  push:
-    # main, plus the branch this project was first pushed from (the repo's first branch)
-    branches: [main, ccr-33f10b79-oyaibl]
   workflow_dispatch:
 
 permissions:

@@ -2,7 +2,7 @@
 
 A practice ground and licence exam for **analytics engineering**, built for someone returning to the field after a few years away. It covers the skills a modern analytics engineer job ad asks for, and every SQL and dbt task runs for real in your browser.
 
-**Open it:** https://sanjinpepic.github.io/Analytics-engineering/ (after GitHub Pages is enabled, see below)
+**Open it:** https://sanjinpepic.github.io/Analytics-engineering/ (once Pages is switched on, see [Deploy](#deploy-github-pages))
 
 ## What's inside
 
@@ -34,10 +34,14 @@ npm run verify-content # with the dev server running: executes every reference s
 
 ## Deploy (GitHub Pages)
 
-1. In the repository, open **Settings → Pages** and set **Source: GitHub Actions**.
-2. Merge to `main`. `.github/workflows/deploy.yml` builds the site and publishes it.
+The built site is committed in `docs/`, so Pages can serve it with no build step:
 
-Pages on a private repository needs a paid GitHub plan. Otherwise run it locally or make the repository public.
+1. In the repository, open **Settings → Pages**. Under **Build and deployment** pick **Source: Deploy from a branch**, then **Branch: `main`**, folder **`/docs`**, and save.
+2. After a minute or two the site is live at https://sanjinpepic.github.io/Analytics-engineering/.
+
+After changing the app, run `npm run build:docs` and commit `docs/`.
+
+Alternative: set **Source: GitHub Actions** and run the **Deploy to GitHub Pages** workflow (`.github/workflows/deploy.yml`) manually. It builds `dist/` in CI, so `docs/` isn't needed.
 
 ## Project layout
 
