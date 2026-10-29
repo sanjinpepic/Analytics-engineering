@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { DOMAINS } from '../content/domains';
 import { PRACTICE_ITEMS } from '../content/catalog';
 import { EXAM } from '../content/exam';
+import { examItems } from '../content/examForms';
 import { Page } from '../components/Shell';
 import { ProgrammeStrip, nextEvent } from '../components/Programme';
 import { Pictogram } from '../components/Pictogram';
@@ -20,7 +21,7 @@ export function Home() {
   const due = useDueCount();
   const mastery = practiceMastery(PRACTICE_ITEMS, progress);
   const practice = practiceLevel(mastery);
-  const lastExam = history[0] ? scoreExam(history[0], EXAM) : null;
+  const lastExam = history[0] ? scoreExam(history[0], examItems(history[0])) : null;
   const level = lastExam?.level ?? (Object.keys(progress).length ? practice.level : null);
   const levelIdx = level ? LEVELS.findIndex((l) => l.code === level.code) : -1;
   const attempted = Object.keys(progress).length;
@@ -144,7 +145,7 @@ export function Home() {
             {history.length > 0 && <ButtonLink to="/report">Send results to Claude</ButtonLink>}
           </div>
           <p className="px-5 pb-4 text-[12px] text-ink-3">
-            {EXAM.length} unseen tasks · about 75 minutes · written answers graded by Claude
+            Two papers of {EXAM.length} unseen tasks · about 75 minutes · written answers graded by Claude
           </p>
         </aside>
       </div>

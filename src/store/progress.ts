@@ -32,6 +32,8 @@ export interface ExamAnswer {
 export interface ExamSession {
   id: string;
   variant: 'full';
+  /** exam paper; sessions from before forms existed are Form A */
+  form?: 'A' | 'B';
   startedAt: number;
   finishedAt?: number;
   candidate: { name: string; background: string; yearsExperience: string; jobAd: string; goals: string };

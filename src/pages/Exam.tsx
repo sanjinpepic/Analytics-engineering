@@ -2,7 +2,8 @@ import { ArrowLeft, ArrowRight, Clock, Flag, GraduationCap } from 'lucide-react'
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
 import { DOMAIN_BY_ID, DOMAINS } from '../content/domains';
-import { EXAM, EXAM_TIME_LIMIT_MIN } from '../content/exam';
+import { EXAM_TIME_LIMIT_MIN } from '../content/exam';
+import { EXAM_FORMS, examItems, type ExamFormId } from '../content/examForms';
 import { ItemView } from '../components/items/ItemView';
 import { Pictogram } from '../components/Pictogram';
 import { Page } from '../components/Shell';
@@ -16,17 +17,24 @@ export function ExamIntro() {
   const setProfile = useProgress((s) => s.setProfile);
   const live = useProgress((s) => s.exam);
   const startExam = useProgress((s) => s.startExam);
+  const history = useProgress((s) => s.examHistory);
   const navigate = useNavigate();
+  const taken = (f: ExamFormId) => history.filter((h) => (h.form ?? 'A') === f);
+  // suggest the paper not taken yet, otherwise the one taken longest ago
+  const suggested: ExamFormId = !taken('A').length ? 'A' : !taken('B').length ? 'B' : taken('A')[0].startedAt < taken('B')[0].startedAt ? 'A' : 'B';
+  const [form, setForm] = useState<ExamFormId>(suggested);
+  const EXAM = EXAM_FORMS[form].items;
   const counts = useMemo(() => {
     const c: Record<string, number> = {};
-    for (const i of EXAM) c[i.kind] = (c[i.kind] ?? 0) + 1;
+    for (const i of EXAM_FORMS[form].items) c[i.kind] = (c[i.kind] ?? 0) + 1;
     return c;
-  }, []);
+  }, [form]);
 
   const start = () => {
     startExam({
       id: `exam-${Date.now()}`,
       variant: 'full',
+      form,
       startedAt: Date.now(),
       candidate: { name: profile.name, background: profile.background, yearsExperience: profile.yearsExperience, jobAd: profile.jobAd, goals: profile.goals },
       answers: {},
@@ -100,6 +108,31 @@ export function ExamIntro() {
           <h2 id="rules" className="border-b border-line px-5 py-3 text-[17px] font-[680] text-ink">
             How it works
           </h2>
+          {!live && (
+            <fieldset className="border-b border-line px-5 py-4">
+              <legend className="sr-only">Exam paper</legend>
+              <p className="text-[13px] font-medium text-ink">Paper</p>
+              <div className="mt-2 grid grid-cols-2 gap-2" role="radiogroup" aria-label="Exam paper">
+                {(['A', 'B'] as const).map((f) => {
+                  const t = taken(f);
+                  return (
+                    <button
+                      key={f}
+                      type="button"
+                      role="radio"
+                      aria-checked={form === f}
+                      onClick={() => setForm(f)}
+                      className={cx('border px-3 py-2 text-left', form === f ? 'border-[var(--ink)] bg-[var(--ink)] text-[var(--surface)]' : 'border-line-strong bg-surface text-ink hover:bg-surface-2')}
+                    >
+                      <span className="block text-[14px] font-semibold">{EXAM_FORMS[f].name}</span>
+                      <span className={cx('block text-[11.5px]', form === f ? 'opacity-80' : 'text-ink-3')}>{t.length ? `taken ${t.length}×` : 'not taken yet'}</span>
+                    </button>
+                  );
+                })}
+              </div>
+              <p className="mt-2 text-[12px] leading-snug text-ink-3">Two papers with the same structure and difficulty but different tasks. Retake the one you took longest ago, so you’re measured on skill, not memory.</p>
+            </fieldset>
+          )}
           <ul className="space-y-2.5 px-5 py-4 text-[13.5px] leading-relaxed text-ink-2">
             <li>
               <strong className="text-ink">{counts.mcq ?? 0} multiple choice, {(counts.sql ?? 0) + (counts.numeric ?? 0)} SQL, {counts.dbt ?? 0} dbt, {counts.order ?? 0} ordering, {counts.open ?? 0} written.</strong> SQL and dbt run for real; you can execute as often as you like before saving.
@@ -138,6 +171,7 @@ export function ExamRun() {
   const setExamFiles = useProgress((s) => s.setExamFiles);
   const finishExam = useProgress((s) => s.finishExam);
   const navigate = useNavigate();
+  const EXAM = exam ? examItems(exam) : EXAM_FORMS.A.items;
   const [idx, setIdx] = useState(() => {
     if (!exam) return 0;
     const first = EXAM.findIndex((i) => !exam.answers[i.id]);
@@ -194,7 +228,7 @@ export function ExamRun() {
       {/* exam bar */}
       <div className="sticky top-0 z-20 border-b border-line bg-surface/95 backdrop-blur-[2px] max-lg:top-14">
         <div className="mx-auto flex max-w-[1500px] flex-wrap items-center gap-x-5 gap-y-2 px-4 py-2.5 sm:px-8">
-          <span className="text-[14px] font-[680] text-ink">Licence exam</span>
+          <span className="text-[14px] font-[680] text-ink">Licence exam · {EXAM_FORMS[exam.form ?? 'A'].name}</span>
           <span className={cx('inline-flex items-center gap-1.5 text-[14px] font-semibold tnum', remaining < 0 ? 'text-bad' : remaining < 600 ? 'text-warn' : 'text-ink-2')} aria-live="off">
             <Clock size={14} aria-hidden /> {remaining >= 0 ? `${fmt(remaining)} left` : `${fmt(remaining)} over`}
           </span>

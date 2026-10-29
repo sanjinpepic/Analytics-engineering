@@ -2,7 +2,7 @@ import { Check, Clipboard, Download, FileJson, RotateCcw } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { DOMAIN_BY_ID, DOMAINS } from '../content/domains';
-import { EXAM } from '../content/exam';
+import { EXAM_FORMS, examItems } from '../content/examForms';
 import { PRACTICE_ITEMS } from '../content/catalog';
 import { Pictogram } from '../components/Pictogram';
 import { Page } from '../components/Shell';
@@ -42,9 +42,10 @@ function CopyButton({ text, label = 'Copy report for Claude', primary }: { text:
 
 function ExamReportView({ exam }: { exam: ExamSession }) {
   const progress = useProgress((s) => s.progress);
-  const { markdown, json, result } = useMemo(() => buildExamReport({ exam, items: EXAM, practice: { items: PRACTICE_ITEMS, progress } }), [exam, progress]);
+  const EXAM = examItems(exam);
+  const { markdown, json, result } = useMemo(() => buildExamReport({ exam, items: examItems(exam), practice: { items: PRACTICE_ITEMS, progress } }), [exam, progress]);
   const levelIdx = LEVELS.findIndex((l) => l.code === result.level.code);
-  const stamp = new Date(exam.finishedAt ?? exam.startedAt).toISOString().slice(0, 10);
+  const stamp = `${new Date(exam.finishedAt ?? exam.startedAt).toISOString().slice(0, 10)}-form-${(exam.form ?? 'A').toLowerCase()}`;
   return (
     <>
       <section className="mt-6 grid gap-6 lg:grid-cols-[360px_minmax(0,1fr)]" aria-label="Result">
@@ -182,7 +183,7 @@ export function ExamResultPage() {
   const exam = history[0];
   return (
     <Page wide>
-      <PageHeader title="Exam results" lead={exam ? `Finished ${new Date(exam.finishedAt ?? exam.startedAt).toLocaleString()}.` : undefined} actions={<ButtonLink to="/exam">Retake later</ButtonLink>} />
+      <PageHeader title="Exam results" lead={exam ? `${EXAM_FORMS[exam.form ?? 'A'].name} · finished ${new Date(exam.finishedAt ?? exam.startedAt).toLocaleString()}.` : undefined} actions={<ButtonLink to="/exam">Retake later</ButtonLink>} />
       {exam ? <ExamReportView exam={exam} /> : <p className="mt-6 text-ink-2">No finished exam yet. <Link to="/exam">Sit the licence exam</Link>.</p>}
     </Page>
   );
@@ -210,7 +211,7 @@ export function ReportPage() {
               <select value={pick} onChange={(e) => setPick(Number(e.target.value))} className="h-8 rounded-[3px] border border-line-strong bg-surface px-2 text-[13px] text-ink">
                 {history.map((h, i) => (
                   <option key={h.id} value={i}>
-                    {new Date(h.finishedAt ?? h.startedAt).toLocaleString()}
+                    {EXAM_FORMS[h.form ?? 'A'].name} · {new Date(h.finishedAt ?? h.startedAt).toLocaleString()}
                   </option>
                 ))}
               </select>

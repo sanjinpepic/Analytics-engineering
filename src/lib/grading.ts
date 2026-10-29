@@ -204,6 +204,14 @@ async function evalCheck(c: DbtCheck, files: ProjectFiles, schema: string, run: 
         return { label, ok: false, detail: `Could not read ${schema}.${c.model}: ${(e as Error).message}` };
       }
     }
+    case 'test-failures': {
+      const hits = run.results.filter((r) => (r.kind === 'test' || r.kind === 'unit_test') && r.name.includes(c.test));
+      if (!hits.length) return { label: c.label, ok: false, detail: `No test named like '${c.test}' ran. Check the file name and the --select.` };
+      const t = hits[0];
+      if (t.status === 'error') return { label: c.label, ok: false, detail: `The test errored: ${t.message.split('\n')[0]}` };
+      const n = t.failures ?? 0;
+      return { label: c.label, ok: n === c.failures, detail: n === c.failures ? undefined : `It reported ${n} failing row${n === 1 ? '' : 's'}.` };
+    }
     case 'file-matches': {
       const content = files[c.file] ?? '';
       const allMatch = c.patterns.every((p) => new RegExp(p, 'is').test(content));

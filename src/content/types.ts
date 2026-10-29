@@ -78,7 +78,9 @@ export type DbtCheck =
   | { type: 'build-ok'; label?: string }
   | { type: 'file-matches'; file: string; patterns: string[]; label: string; mustNot?: boolean }
   | { type: 'config'; model: string; key: string; equals: unknown; label: string }
-  | { type: 'incremental-equivalence'; model: string; label?: string };
+  | { type: 'incremental-equivalence'; model: string; label?: string }
+  /** a data test (name substring) must exist and report exactly this many failing rows */
+  | { type: 'test-failures'; test: string; failures: number; label: string };
 
 export interface DbtItem extends ItemBase {
   kind: 'dbt';
