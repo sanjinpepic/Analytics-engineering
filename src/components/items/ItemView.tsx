@@ -1,4 +1,4 @@
-import { ArrowDown, ArrowUp, Check, CircleAlert, Eye, Lightbulb, Play, X } from 'lucide-react';
+import { ArrowDown, ArrowUp, Check, CircleAlert, Eye, EyeOff, Lightbulb, Play, X } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import type { DbtItem, Item, McqItem, NumericItem, OpenItem, OrderItem, SqlItem } from '../../content/types';
 import { query, type QueryResult } from '../../lib/duckdb';
@@ -289,6 +289,20 @@ function OrderView({ item, mode, initial, onSubmit }: { item: OrderItem; mode: M
 }
 
 // ---------------------------------------------------------------- SQL
+function HideButton({ onClick }: { onClick: () => void }) {
+  return (
+    <button type="button" onClick={onClick} className="inline-flex items-center gap-1 rounded-[3px] px-1.5 py-0.5 text-[12px] font-medium text-ink-3 hover:bg-surface-3 hover:text-ink">
+      <EyeOff size={12} aria-hidden /> Hide
+    </button>
+  );
+}
+
+/** Revealing a solution is remembered, so the item shows as revealed in progress and reports. */
+function markRevealed(itemId: string, answer: unknown) {
+  const prev = useProgress.getState().progress[itemId];
+  useProgress.getState().record(itemId, { status: prev?.status ?? 'incorrect', score: prev?.score ?? 0, answer, revealed: true, attempts: 0 });
+}
+
 function useSchemaCompletion() {
   const [schema, setSchema] = useState<Record<string, string[]> | undefined>();
   useEffect(() => {
@@ -350,12 +364,13 @@ function SqlView({ item, mode, initial, onSubmit }: { item: SqlItem; mode: Mode;
         {mode === 'practice' && (
           <Button
             variant="ghost"
+            aria-expanded={showSolution}
             onClick={() => {
-              setShowSolution(true);
-              useProgress.getState().record(item.id, { status: useProgress.getState().progress[item.id]?.status ?? 'incorrect', score: useProgress.getState().progress[item.id]?.score ?? 0, answer: sql, revealed: true, attempts: 0 });
+              if (!showSolution) markRevealed(item.id, sql);
+              setShowSolution((v) => !v);
             }}
           >
-            <Eye size={14} aria-hidden /> Show solution
+            {showSolution ? <EyeOff size={14} aria-hidden /> : <Eye size={14} aria-hidden />} {showSolution ? 'Hide solution' : 'Show solution'}
           </Button>
         )}
       </div>
@@ -371,12 +386,22 @@ function SqlView({ item, mode, initial, onSubmit }: { item: SqlItem; mode: Mode;
       )}
       {result && (
         <div className="mt-3">
-          {result.error && <pre className="border border-bad/30 bg-bad-soft px-3 py-2 font-mono text-[12.5px] whitespace-pre-wrap text-bad">{result.error}</pre>}
+          {result.error && (
+            <div className="relative">
+              <pre className="border border-bad/30 bg-bad-soft px-3 py-2 pr-20 font-mono text-[12.5px] whitespace-pre-wrap text-bad">{result.error}</pre>
+              <span className="absolute top-1.5 right-2">
+                <HideButton onClick={() => setResult(null)} />
+              </span>
+            </div>
+          )}
           {result.result && (
             <>
-              <div className="mb-1 flex items-center justify-between">
+              <div className="mb-1 flex items-center justify-between gap-3">
                 <span className="text-[12.5px] font-medium text-ink-2">Your result</span>
-                <ResultMeta result={result.result} />
+                <span className="flex items-center gap-3">
+                  <ResultMeta result={result.result} />
+                  <HideButton onClick={() => setResult(null)} />
+                </span>
               </div>
               <ResultTable result={result.result} compact />
             </>
@@ -441,10 +466,14 @@ function NumericView({ item, mode, initial, onSubmit }: { item: NumericItem; mod
           ))}
         </ul>
       )}
-      {result?.error && <pre className="mt-2 bg-bad-soft px-3 py-2 font-mono text-[12.5px] whitespace-pre-wrap text-bad">{result.error}</pre>}
-      {result?.result && (
+      {result && (
         <div className="mt-2">
-          <ResultTable result={result.result} compact />
+          <div className="mb-1 flex items-center justify-end gap-3">
+            {result.result && <ResultMeta result={result.result} />}
+            <HideButton onClick={() => setResult(null)} />
+          </div>
+          {result.error && <pre className="bg-bad-soft px-3 py-2 font-mono text-[12.5px] whitespace-pre-wrap text-bad">{result.error}</pre>}
+          {result.result && <ResultTable result={result.result} compact />}
         </div>
       )}
       <form
@@ -470,12 +499,14 @@ function NumericView({ item, mode, initial, onSubmit }: { item: NumericItem; mod
         {mode === 'practice' && (
           <Button
             variant="ghost"
+            aria-expanded={solution !== null}
             onClick={async () => {
+              if (solution !== null) return setSolution(null);
+              markRevealed(item.id, value);
               setSolution(await numericAnswer(item));
-              useProgress.getState().record(item.id, { status: useProgress.getState().progress[item.id]?.status ?? 'incorrect', score: useProgress.getState().progress[item.id]?.score ?? 0, answer: value, revealed: true, attempts: 0 });
             }}
           >
-            <Eye size={14} aria-hidden /> Show answer
+            {solution !== null ? <EyeOff size={14} aria-hidden /> : <Eye size={14} aria-hidden />} {solution !== null ? 'Hide answer' : 'Show answer'}
           </Button>
         )}
       </form>
