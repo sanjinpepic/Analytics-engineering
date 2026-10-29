@@ -6,7 +6,8 @@ import { EXAM, EXAM_TIME_LIMIT_MIN } from '../content/exam';
 import { ItemView } from '../components/items/ItemView';
 import { Pictogram } from '../components/Pictogram';
 import { Page } from '../components/Shell';
-import { Button, ButtonLink, PageHeader, cx } from '../components/ui';
+import { Button, ButtonLink, cx } from '../components/ui';
+import { PosterLettering } from '../components/Poster';
 import { isAutoGraded } from '../lib/scoring';
 import { useProgress, type ExamAnswer } from '../store/progress';
 
@@ -37,11 +38,14 @@ export function ExamIntro() {
 
   const field = 'w-full rounded-[3px] border border-line-strong bg-surface px-3 py-2 text-[14px] text-ink placeholder:text-ink-3';
   return (
+    <>
+    <section aria-labelledby="exam-title" className="bg-[var(--poster)] px-4 pt-10 pb-10 sm:px-8">
+      <PosterLettering id="exam-title" title="The licence exam" subtitle="Ten disciplines" meta={`${EXAM.length} tasks · ${EXAM_TIME_LIMIT_MIN} minutes`} />
+    </section>
     <Page>
-      <PageHeader
-        title="The licence exam"
-        lead={`${EXAM.length} unseen tasks across the ten disciplines, in workday order. About ${EXAM_TIME_LIMIT_MIN} minutes. No feedback until you finish, like a real test. Then you export a report and Claude grades your written answers, reviews your SQL and dbt work, sets your level against the job ad, and writes you a focus plan.`}
-      />
+      <p className="max-w-[75ch] text-[15px] leading-relaxed text-ink-2">
+        {EXAM.length} unseen tasks across the ten disciplines, in workday order. No feedback until you finish, like a real test. Then you export a report and Claude grades your written answers, reviews your SQL and dbt work, sets your level against the job ad, and writes you a focus plan.
+      </p>
       {live && (
         <div className="mt-6 flex flex-wrap items-center justify-between gap-3 bg-warn-soft px-4 py-3">
           <p className="text-[14px] text-ink">
@@ -87,7 +91,7 @@ export function ExamIntro() {
             <label className="grid gap-1">
               <span className="text-[13px] font-medium text-ink">Target job ad</span>
               <span className="text-[12.5px] text-ink-3">Pre-filled with the ad you shared. Paste another one to be assessed against it instead.</span>
-              <textarea className={cx(field, 'font-mono text-[12.5px]')} rows={10} value={profile.jobAd} onChange={(e) => setProfile({ jobAd: e.target.value })} />
+              <textarea className={cx(field, 'text-[13.5px] leading-relaxed')} rows={10} value={profile.jobAd} onChange={(e) => setProfile({ jobAd: e.target.value })} />
             </label>
           </div>
         </section>
@@ -119,6 +123,7 @@ export function ExamIntro() {
         </aside>
       </div>
     </Page>
+    </>
   );
 }
 

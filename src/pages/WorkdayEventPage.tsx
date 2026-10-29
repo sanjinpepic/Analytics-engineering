@@ -33,10 +33,10 @@ export function WorkdayEventPage() {
               <Pictogram domain={e.domain} size={22} />
             </span>
             <div>
-              <p className="text-[13px] font-semibold text-ink-2 tnum">
+              <h1 className="font-display text-[34px] leading-[1.05] uppercase text-ink">{e.title}</h1>
+              <p className="mt-1 text-[13px] font-semibold text-ink-2 tnum">
                 {e.time}–{e.end} · {d.name}
               </p>
-              <h1 className="font-display text-[34px] leading-[1.05] uppercase text-ink">{e.title}</h1>
             </div>
           </div>
 

@@ -1209,7 +1209,7 @@ from first_orders f`,
     time: '17:00',
     end: '17:30',
     domain: 'governance',
-    title: 'Document and hand off',
+    title: 'Docs and hand-off',
     tagline: 'Docs, PII and the Slack reply',
     moduleId: 'governance',
     brief: {

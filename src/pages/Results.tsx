@@ -49,11 +49,12 @@ function ExamReportView({ exam }: { exam: ExamSession }) {
     <>
       <section className="mt-6 grid gap-6 lg:grid-cols-[360px_minmax(0,1fr)]" aria-label="Result">
         <div className="ticked-frame self-start">
-          <div className="bg-[var(--poster)] px-6 py-6 text-center text-[var(--poster-ink)]">
-            <p className="font-display text-[18px] uppercase">Provisional licence</p>
-            <p className="font-display mt-2 text-[76px] leading-none">{result.level.code}</p>
-            <p className="font-display mt-2 text-[26px] leading-tight uppercase">{result.level.plate}</p>
+          <div>
+          <div className="bg-[var(--poster)] px-6 py-7 text-center text-[var(--poster-ink)]">
+            <p className="font-display text-[84px] leading-none">{result.level.code}</p>
+            <p className="font-display mt-2 text-[28px] leading-tight uppercase">{result.level.plate}</p>
           </div>
+          <p className="bg-[var(--ink)] px-5 py-1.5 text-center text-[12.5px] font-medium text-[var(--surface)]">Provisional · pending Claude’s grading of {result.openPending} written answers</p>
           <div className="bg-surface px-5 py-4">
             <p className="text-[15px] font-[650] text-ink">{result.level.role}</p>
             <p className="mt-1 text-[13px] leading-relaxed text-ink-2">{result.level.description}</p>
@@ -78,7 +79,8 @@ function ExamReportView({ exam }: { exam: ExamSession }) {
                 </li>
               ))}
             </ol>
-            <p className="mt-3 text-[12px] leading-snug text-ink-3">{result.levelReason} Claude finalises it after grading your {result.openPending} written answers.</p>
+            <p className="mt-3 text-[12px] leading-snug text-ink-3">{result.levelReason}</p>
+          </div>
           </div>
         </div>
 

@@ -285,16 +285,27 @@
   letter-spacing: 0.01em;
 }
 
-/* signature: the poster's ticked frame */
+/* signature: the poster's ticked frame — a cream band of black ticks between two ink rules */
 .ticked-frame {
-  padding: 9px;
+  position: relative;
+  padding: 16px;
+  background: var(--tick-ground);
+  box-shadow: inset 0 0 0 1.5px var(--tick);
+}
+.ticked-frame::before {
+  content: '';
+  position: absolute;
+  inset: 4px;
+  pointer-events: none;
   background:
-    repeating-linear-gradient(90deg, var(--tick) 0 3px, transparent 3px 7px) top / 100% 4px no-repeat,
-    repeating-linear-gradient(90deg, var(--tick) 0 3px, transparent 3px 7px) bottom / 100% 4px no-repeat,
-    repeating-linear-gradient(180deg, var(--tick) 0 3px, transparent 3px 7px) left / 4px 100% no-repeat,
-    repeating-linear-gradient(180deg, var(--tick) 0 3px, transparent 3px 7px) right / 4px 100% no-repeat,
-    var(--tick-ground);
-  box-shadow: inset 0 0 0 1px var(--tick);
+    repeating-linear-gradient(90deg, var(--tick) 0 2.5px, transparent 2.5px 6px) top / 100% 8px no-repeat,
+    repeating-linear-gradient(90deg, var(--tick) 0 2.5px, transparent 2.5px 6px) bottom / 100% 8px no-repeat,
+    repeating-linear-gradient(180deg, var(--tick) 0 2.5px, transparent 2.5px 6px) left / 8px 100% no-repeat,
+    repeating-linear-gradient(180deg, var(--tick) 0 2.5px, transparent 2.5px 6px) right / 8px 100% no-repeat;
+}
+.ticked-frame > * {
+  position: relative;
+  outline: 1.5px solid var(--tick);
 }
 
 /* condensed voice for event titles and big numerals */

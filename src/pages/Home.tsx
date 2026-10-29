@@ -6,6 +6,7 @@ import { EXAM } from '../content/exam';
 import { Page } from '../components/Shell';
 import { ProgrammeStrip, nextEvent } from '../components/Programme';
 import { Pictogram } from '../components/Pictogram';
+import { PosterLettering } from '../components/Poster';
 import { ButtonLink, Meter } from '../components/ui';
 import { LEVELS, practiceLevel, practiceMastery, scoreExam } from '../lib/scoring';
 import { useProgress } from '../store/progress';
@@ -29,16 +30,10 @@ export function Home() {
           <div className="ticked-frame">
             <ProgrammeStrip current={next?.id} />
           </div>
-          <div className="mt-7 text-center text-[var(--poster-ink)]">
-            <h1 id="day-title" className="font-display text-[40px] leading-[0.95] uppercase sm:text-[56px] lg:text-[68px]">
-              The analytics engineer’s day
-            </h1>
-            <p className="font-display mt-3 flex items-center justify-center gap-3 text-[20px] uppercase sm:text-[30px]">
-              <Swash /> Tidepool Coffee Co. 2026 <Swash flip />
-            </p>
-            <p className="font-display mt-1 text-[18px] uppercase tnum sm:text-[24px]">1 July · 08:30 — 17:30</p>
+          <div className="mt-8">
+            <PosterLettering id="day-title" title="The analytics engineer’s day" subtitle="Tidepool Coffee Co. 2026" meta="1 July · 08:30 — 17:30" />
           </div>
-          <div className="mt-6 flex flex-wrap items-center justify-center gap-x-5 gap-y-3">
+          <div className="mt-7 flex flex-wrap items-center justify-center gap-x-5 gap-y-3">
             {next ? (
               <ButtonLink to={`/workday/${next.id}`} variant="poster" className="h-11 px-5 text-[15px]">
                 Continue: {next.time} {next.title} <ArrowRight size={16} aria-hidden />
@@ -150,12 +145,3 @@ export function Home() {
   );
 }
 
-/** A Jugendstil scroll, after the ornaments flanking "Stockholm 1912". */
-function Swash({ flip }: { flip?: boolean }) {
-  return (
-    <svg viewBox="0 0 40 20" width="34" height="17" aria-hidden className={flip ? '-scale-x-100' : undefined} fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round">
-      <path d="M38 10c-6 0-8-7-14-7-5 0-7 4-4 7 3 3 7 0 5-2" />
-      <path d="M38 10c-8 0-10 7-17 7-4 0-6-2-6-4" />
-    </svg>
-  );
-}
