@@ -7,6 +7,7 @@ import { Page } from '../components/Shell';
 import { ProgrammeStrip, nextEvent } from '../components/Programme';
 import { Pictogram } from '../components/Pictogram';
 import { PosterLettering } from '../components/Poster';
+import { useDueCount } from '../lib/review';
 import { ButtonLink, Meter } from '../components/ui';
 import { LEVELS, practiceLevel, practiceMastery, scoreExam } from '../lib/scoring';
 import { useProgress } from '../store/progress';
@@ -16,6 +17,7 @@ export function Home() {
   const history = useProgress((s) => s.examHistory);
   const live = useProgress((s) => s.exam);
   const next = nextEvent(progress);
+  const due = useDueCount();
   const mastery = practiceMastery(PRACTICE_ITEMS, progress);
   const practice = practiceLevel(mastery);
   const lastExam = history[0] ? scoreExam(history[0], EXAM) : null;
@@ -43,7 +45,13 @@ export function Home() {
                 Day complete: sit the licence exam <ArrowRight size={16} aria-hidden />
               </ButtonLink>
             )}
-            <span className="text-[13px] text-[var(--rail-ink-2)]">Ten disciplines · every task runs for real · a synthetic company</span>
+            {due > 0 ? (
+              <ButtonLink to="/review" variant="poster" className="h-11 px-5 text-[15px]">
+                {due} to review
+              </ButtonLink>
+            ) : (
+              <span className="text-[13px] text-[var(--rail-ink-2)]">Ten disciplines · every task runs for real · a synthetic company</span>
+            )}
           </div>
         </div>
       </section>

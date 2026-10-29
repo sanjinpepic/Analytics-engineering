@@ -1,4 +1,5 @@
-import { BookOpen, CalendarClock, Database, Dumbbell, FileText, GraduationCap, Menu, Monitor, Moon, Sun, TerminalSquare, X } from 'lucide-react';
+import { BookOpen, CalendarClock, Database, Dumbbell, FileText, GraduationCap, Menu, Monitor, Moon, RotateCcw, Sun, TerminalSquare, X } from 'lucide-react';
+import { useDueCount } from '../lib/review';
 import { useEffect, useState } from 'react';
 import { NavLink, Outlet, useLocation } from 'react-router-dom';
 import { useProgress } from '../store/progress';
@@ -11,6 +12,7 @@ const NAV = [
   { to: '/theory', label: 'Theory', icon: BookOpen },
   { to: '/gym', label: 'SQL gym', icon: Database },
   { to: '/drills', label: 'Drills', icon: Dumbbell },
+  { to: '/review', label: 'Review', icon: RotateCcw },
   { to: '/workspace', label: 'dbt workspace', icon: TerminalSquare },
   { to: '/exam', label: 'Licence exam', icon: GraduationCap },
   { to: '/report', label: 'Report', icon: FileText },
@@ -65,6 +67,7 @@ function WarehouseStatus() {
 
 function RailContent({ onNavigate }: { onNavigate?: () => void }) {
   const exam = useProgress((s) => s.exam);
+  const due = useDueCount();
   return (
     <div className="flex h-full flex-col">
       <NavLink to="/" onClick={onNavigate} className="flex items-center gap-2.5 px-4 pt-5 pb-6 no-underline">
@@ -91,6 +94,7 @@ function RailContent({ onNavigate }: { onNavigate?: () => void }) {
               >
                 <n.icon size={16} aria-hidden />
                 {n.label}
+                {n.to === '/review' && due > 0 && <span className="ml-auto min-w-6 bg-[var(--rail-active)] px-1.5 text-center text-[11px] font-semibold text-[var(--rail-active-ink)] tnum">{due}</span>}
                 {n.to === '/exam' && exam && <span className="ml-auto bg-[var(--rail-active)] px-1.5 text-[11px] font-semibold text-[var(--rail-active-ink)]">LIVE</span>}
               </NavLink>
             </li>

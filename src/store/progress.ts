@@ -3,6 +3,7 @@ import { createJSONStorage, persist, type StateStorage } from 'zustand/middlewar
 import type { ProjectFiles } from '../lib/dbt/types';
 import { REFERENCE_JOB_AD } from '../content/jobAd';
 import { templateOf } from '../content/drills';
+import { schedule, srsKey, type SrsEntry } from '../lib/srs';
 
 export type AttemptStatus = 'correct' | 'partial' | 'incorrect' | 'submitted';
 
@@ -53,6 +54,7 @@ const MAX_GENERATED_IN_PROGRESS = 150;
 interface State {
   progress: Record<string, Attempt>;
   drillStats: Record<string, DrillStat>;
+  srs: Record<string, SrsEntry>;
   modulesRead: Record<string, number>;
   itemFiles: Record<string, ProjectFiles>;
   workspaceFiles: ProjectFiles | null;
@@ -108,6 +110,7 @@ export const useProgress = create<State>()(
     (set) => ({
       progress: {},
       drillStats: {},
+      srs: {},
       modulesRead: {},
       itemFiles: {},
       workspaceFiles: null,
@@ -156,7 +159,15 @@ export const useProgress = create<State>()(
               for (const [k] of gen.slice(0, gen.length - MAX_GENERATED_IN_PROGRESS)) delete progress[k];
             }
           }
-          return { progress, drillStats };
+          // spaced repetition: written answers are graded by Claude, not scheduled
+          let srs = s.srs;
+          const graded = a.attempts !== 0 || a.revealed;
+          if (a.status !== 'submitted' && graded) {
+            const key = srsKey(itemId, tpl);
+            const ok = a.status === 'correct' && !a.revealed;
+            srs = { ...s.srs, [key]: schedule(s.srs[key], ok) };
+          }
+          return { progress, drillStats, srs };
         }),
       markRead: (id) => set((s) => ({ modulesRead: { ...s.modulesRead, [id]: Date.now() } })),
       setItemFiles: (id, files) =>
@@ -180,7 +191,7 @@ export const useProgress = create<State>()(
           return { exam: null, examHistory: [done, ...s.examHistory].slice(0, 10) };
         }),
       abandonExam: () => set({ exam: null }),
-      resetProgress: () => set({ progress: {}, drillStats: {}, modulesRead: {}, itemFiles: {}, workspaceFiles: null, gymDraft: '' }),
+      resetProgress: () => set({ progress: {}, drillStats: {}, srs: {}, modulesRead: {}, itemFiles: {}, workspaceFiles: null, gymDraft: '' }),
     }),
     {
       name: 'ae-licence-v1',

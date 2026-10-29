@@ -36,14 +36,16 @@ function statusOf(g: Grade): AttemptStatus {
   return g.correct ? 'correct' : g.score > 0 ? 'partial' : 'incorrect';
 }
 
-export function ItemView({ item, mode = 'practice', exam, index }: { item: Item; mode?: Mode; exam?: ExamHooks; index?: number }) {
-  const progress = useProgress((s) => s.progress[item.id]);
+export function ItemView({ item, mode = 'practice', exam, index, fresh, onGraded }: { item: Item; mode?: Mode; exam?: ExamHooks; index?: number; /** review mode: start blank, ignore earlier answers */ fresh?: boolean; onGraded?: (g: Grade) => void }) {
+  const stored = useProgress((s) => s.progress[item.id]);
+  const progress = fresh ? undefined : stored;
   const record = useProgress((s) => s.record);
   const [grade, setGrade] = useState<Grade | null>(null);
   const isMulti = item.kind === 'mcq' && item.correct.length > 1;
 
   const submit = (answer: unknown, g: Grade, extra?: { hintsUsed?: number; revealed?: boolean }) => {
     setGrade(g);
+    onGraded?.(g);
     if (mode === 'exam') exam?.onAnswer({ answer, grade: g });
     else record(item.id, { status: item.kind === 'open' ? 'submitted' : statusOf(g), score: g.score, answer, ...extra });
   };
@@ -92,7 +94,7 @@ export function ItemView({ item, mode = 'practice', exam, index }: { item: Item;
           )}
           {item.kind === 'dbt' && (
             <NeedsWarehouse label="the dbt project">
-              <DbtView item={item} mode={mode} exam={exam} onSubmit={submit} />
+              <DbtView item={item} mode={mode} exam={exam} onSubmit={submit} fresh={fresh} />
             </NeedsWarehouse>
           )}
           {item.kind === 'open' && <OpenView item={item} mode={mode} initial={(mode === 'exam' ? exam?.answer : progress?.answer) as string | undefined} onSubmit={submit} />}
@@ -523,9 +525,13 @@ function NumericView({ item, mode, initial, onSubmit }: { item: NumericItem; mod
 }
 
 // ---------------------------------------------------------------- dbt
-function DbtView({ item, mode, exam, onSubmit }: { item: DbtItem; mode: Mode; exam?: ExamHooks; onSubmit: (a: unknown, g: Grade) => void }) {
+function DbtView({ item, mode, exam, onSubmit, fresh }: { item: DbtItem; mode: Mode; exam?: ExamHooks; onSubmit: (a: unknown, g: Grade) => void; fresh?: boolean }) {
   const stored = useProgress((s) => s.itemFiles[item.id]);
   const setItemFiles = useProgress((s) => s.setItemFiles);
+  // a review starts from the task's starting files, not from the earlier solution
+  useEffect(() => {
+    if (fresh) setItemFiles(item.id, null);
+  }, [fresh, item.id, setItemFiles]);
   const start = useMemo(() => exerciseFiles(item), [item]);
   const files = (mode === 'exam' ? exam?.files : stored) ?? start;
   const setFiles = (f: ProjectFiles) => (mode === 'exam' ? exam?.onFiles?.(f) : setItemFiles(item.id, f));
