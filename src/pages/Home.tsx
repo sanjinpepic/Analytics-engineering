@@ -31,7 +31,7 @@ export function Home() {
             <ProgrammeStrip current={next?.id} />
           </div>
           <div className="mt-8">
-            <PosterLettering id="day-title" title="The analytics engineer’s day" subtitle="Tidepool Coffee Co. 2026" meta="1 July · 08:30 — 17:30" />
+            <PosterLettering id="day-title" title="The analytics engineer’s day" subtitle="Tidepool Coffee Co." meta="1 July 2026 · 08:30 — 17:30" />
           </div>
           <div className="mt-7 flex flex-wrap items-center justify-center gap-x-5 gap-y-3">
             {next ? (

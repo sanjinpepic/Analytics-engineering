@@ -54,7 +54,7 @@ function ExamReportView({ exam }: { exam: ExamSession }) {
             <p className="font-display text-[84px] leading-none">{result.level.code}</p>
             <p className="font-display mt-2 text-[28px] leading-tight uppercase">{result.level.plate}</p>
           </div>
-          <p className="bg-[var(--ink)] px-5 py-1.5 text-center text-[12.5px] font-medium text-[var(--surface)]">Provisional · pending Claude’s grading of {result.openPending} written answers</p>
+          <p className="bg-[var(--ink)] px-5 py-1.5 text-center text-[12.5px] font-medium text-[var(--surface)]">Provisional · pending Claude’s grading ({result.openPending} written)</p>
           <div className="bg-surface px-5 py-4">
             <p className="text-[15px] font-[650] text-ink">{result.level.role}</p>
             <p className="mt-1 text-[13px] leading-relaxed text-ink-2">{result.level.description}</p>
