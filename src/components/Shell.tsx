@@ -1,4 +1,4 @@
-import { BookOpen, CalendarClock, Database, FileText, GraduationCap, Menu, Monitor, Moon, Sun, TerminalSquare, X } from 'lucide-react';
+import { BookOpen, CalendarClock, Database, Dumbbell, FileText, GraduationCap, Menu, Monitor, Moon, Sun, TerminalSquare, X } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { NavLink, Outlet, useLocation } from 'react-router-dom';
 import { useProgress } from '../store/progress';
@@ -10,6 +10,7 @@ const NAV = [
   { to: '/', label: 'Today', icon: CalendarClock, end: true },
   { to: '/theory', label: 'Theory', icon: BookOpen },
   { to: '/gym', label: 'SQL gym', icon: Database },
+  { to: '/drills', label: 'Drills', icon: Dumbbell },
   { to: '/workspace', label: 'dbt workspace', icon: TerminalSquare },
   { to: '/exam', label: 'Licence exam', icon: GraduationCap },
   { to: '/report', label: 'Report', icon: FileText },

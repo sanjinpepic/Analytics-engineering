@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { createJSONStorage, persist, type StateStorage } from 'zustand/middleware';
 import type { ProjectFiles } from '../lib/dbt/types';
 import { REFERENCE_JOB_AD } from '../content/jobAd';
+import { templateOf } from '../content/drills';
 
 export type AttemptStatus = 'correct' | 'partial' | 'incorrect' | 'submitted';
 
@@ -39,8 +40,19 @@ export interface ExamSession {
   timeLimitMin: number;
 }
 
+export interface DrillStat {
+  attempts: number;
+  solved: number;
+  streak: number;
+  last: number;
+}
+
+/** Generated drills are endless; keep only the most recent ones in `progress`. */
+const MAX_GENERATED_IN_PROGRESS = 150;
+
 interface State {
   progress: Record<string, Attempt>;
+  drillStats: Record<string, DrillStat>;
   modulesRead: Record<string, number>;
   itemFiles: Record<string, ProjectFiles>;
   workspaceFiles: ProjectFiles | null;
@@ -95,6 +107,7 @@ export const useProgress = create<State>()(
   persist(
     (set) => ({
       progress: {},
+      drillStats: {},
       modulesRead: {},
       itemFiles: {},
       workspaceFiles: null,
@@ -109,19 +122,41 @@ export const useProgress = create<State>()(
           const prev = s.progress[itemId];
           // never downgrade a solved item when re-attempting
           const keepBest = prev && prev.score > a.score && prev.status === 'correct';
-          return {
-            progress: {
-              ...s.progress,
-              [itemId]: {
-                ...(keepBest ? prev : a),
-                answer: a.answer,
-                attempts: (prev?.attempts ?? 0) + (a.attempts ?? 1),
-                at: Date.now(),
-                hintsUsed: Math.max(prev?.hintsUsed ?? 0, a.hintsUsed ?? 0),
-                revealed: prev?.revealed || a.revealed,
-              },
+          let progress: Record<string, Attempt> = {
+            ...s.progress,
+            [itemId]: {
+              ...(keepBest ? prev : a),
+              answer: a.answer,
+              attempts: (prev?.attempts ?? 0) + (a.attempts ?? 1),
+              at: Date.now(),
+              hintsUsed: Math.max(prev?.hintsUsed ?? 0, a.hintsUsed ?? 0),
+              revealed: prev?.revealed || a.revealed,
             },
           };
+          let drillStats = s.drillStats;
+          const tpl = templateOf(itemId);
+          if (tpl) {
+            const st = s.drillStats[tpl] ?? { attempts: 0, solved: 0, streak: 0, last: 0 };
+            const graded = a.attempts !== 0;
+            const firstSolve = a.status === 'correct' && prev?.status !== 'correct' && !prev?.revealed && !a.revealed;
+            const missed = a.revealed || (graded && a.status !== 'correct');
+            drillStats = {
+              ...s.drillStats,
+              [tpl]: {
+                attempts: st.attempts + (graded ? 1 : 0),
+                solved: st.solved + (firstSolve ? 1 : 0),
+                streak: firstSolve ? st.streak + 1 : missed ? 0 : st.streak,
+                last: Date.now(),
+              },
+            };
+            const gen = Object.entries(progress).filter(([k]) => k.startsWith('gen.'));
+            if (gen.length > MAX_GENERATED_IN_PROGRESS) {
+              gen.sort((x, y) => x[1].at - y[1].at);
+              progress = { ...progress };
+              for (const [k] of gen.slice(0, gen.length - MAX_GENERATED_IN_PROGRESS)) delete progress[k];
+            }
+          }
+          return { progress, drillStats };
         }),
       markRead: (id) => set((s) => ({ modulesRead: { ...s.modulesRead, [id]: Date.now() } })),
       setItemFiles: (id, files) =>
@@ -145,7 +180,7 @@ export const useProgress = create<State>()(
           return { exam: null, examHistory: [done, ...s.examHistory].slice(0, 10) };
         }),
       abandonExam: () => set({ exam: null }),
-      resetProgress: () => set({ progress: {}, modulesRead: {}, itemFiles: {}, workspaceFiles: null, gymDraft: '' }),
+      resetProgress: () => set({ progress: {}, drillStats: {}, modulesRead: {}, itemFiles: {}, workspaceFiles: null, gymDraft: '' }),
     }),
     {
       name: 'ae-licence-v1',

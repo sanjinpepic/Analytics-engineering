@@ -22,9 +22,14 @@ export function GymIndex() {
         title="SQL gym"
         lead="Graded SQL drills against the Tidepool warehouse. Your result set is compared with a reference answer; column names don’t matter unless the task says so, and row order only matters when it asks for an ORDER BY."
         actions={
-          <ButtonLink to="/gym/playground">
-            <Play size={14} aria-hidden /> Open the playground
-          </ButtonLink>
+          <>
+            <ButtonLink to="/drills" variant="primary">
+              Endless drills
+            </ButtonLink>
+            <ButtonLink to="/gym/playground">
+              <Play size={14} aria-hidden /> Open the playground
+            </ButtonLink>
+          </>
         }
       />
       {([1, 2, 3] as const).map((lvl) => {

@@ -8,6 +8,7 @@ import { query } from './lib/duckdb';
 import { applyOverrides, exerciseFiles, gradeDbt, gradeSql } from './lib/grading';
 import { ALL_ITEMS } from './content/catalog';
 import { THEORY } from './content/theory';
+import { DRILL_TEMPLATES, generateDrill } from './content/drills';
 import type { DbtItem } from './content/types';
 
 const out = document.getElementById('out')!;
@@ -65,6 +66,29 @@ async function main() {
       log(`FAIL ${item.kind.padEnd(8)} ${item.id}: ${(e as Error).message}`);
     }
   }
+  // generated drills: many seeds per template must run and return rows
+  if (!only || only.startsWith('gen')) {
+    for (const t of DRILL_TEMPLATES) {
+      let empty = 0;
+      const prompts = new Set<string>();
+      for (let seed = 1; seed <= 25; seed++) {
+        const d = generateDrill(t.id, seed);
+        prompts.add(d.prompt);
+        try {
+          const r = await query(d.solution);
+          if (!r.rows.length) empty++;
+        } catch (e) {
+          failures++;
+          log(`FAIL drill    ${d.id}: ${(e as Error).message.split('\n')[0]}`);
+        }
+      }
+      if (empty > 5) {
+        failures++;
+        log(`FAIL drill    ${t.id}: ${empty}/25 seeds return no rows`);
+      } else log(`ok   drill    ${t.id} (${prompts.size} distinct questions in 25 seeds, ${empty} empty)`);
+    }
+  }
+
   // every runnable lesson snippet must execute
   for (const m of THEORY) {
     for (const sec of m.sections) {
