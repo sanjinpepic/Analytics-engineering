@@ -17,7 +17,7 @@ const buttonVariants: Record<ButtonVariant, string> = {
   ghost: 'text-ink-2 hover:bg-surface-3 hover:text-ink',
   danger: 'bg-surface text-bad border border-line-strong hover:bg-bad-soft',
   /** cream on the orange poster field */
-  poster: 'bg-[var(--rail-active)] text-[var(--rail-active-ink)] hover:bg-[var(--surface)] shadow-[0_3px_10px_-4px_rgba(0,0,0,0.35)]',
+  poster: 'bg-[var(--rail-active)] text-[var(--rail-active-ink)] hover:bg-[var(--surface)]',
 };
 
 export const Button = forwardRef<HTMLButtonElement, React.ButtonHTMLAttributes<HTMLButtonElement> & { variant?: ButtonVariant; size?: 'sm' | 'md' }>(

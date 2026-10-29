@@ -1,6 +1,6 @@
 /**
  * Discipline pictograms, drawn on a 24-unit grid with orthogonal and 45° geometry
- * (after the Munich '72 programme system). Filled shapes, one visual weight.
+ * (in the spirit of Olympic programme pictograms). Filled shapes, one visual weight.
  */
 import type { DomainId } from '../content/types';
 
